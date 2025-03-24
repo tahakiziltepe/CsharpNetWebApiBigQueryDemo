@@ -1,0 +1,63 @@
+﻿@page "/wiki/trend-titles"
+@attribute [StreamRendering]
+@inject HttpClient Http
+@inject IMemoryCache IMemoryCache
+
+<PageTitle>BigQuery API</PageTitle>
+
+<h1>Trend Titles</h1>
+
+@if (pageViews == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Views</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pageView in pageViews)
+            {
+                <tr>
+                    <td>@pageView.DateHour.ToShortDateString()</td>
+                    <td>@pageView.Title</td>
+                    <td>@pageView.Views</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<PageViews> pageViews;
+    private readonly IMemoryCache cache;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!IMemoryCache.TryGetValue("PageViews", out pageViews))
+		{
+			await GetPageViews();
+			IMemoryCache.Set("PageViews", pageViews, TimeSpan.FromHours(24));
+		}
+    }
+
+	public async Task GetPageViews()
+	{
+		var response = await Http.GetAsync("/wikiapi/TopViewsYesterday");
+		if (response.IsSuccessStatusCode)
+		{
+			var results = await response.Content.ReadFromJsonAsync<BaseResponseModel>();
+			if (results != null)
+			{
+				pageViews = results.Data;
+			}
+		}
+	}
+
+}
