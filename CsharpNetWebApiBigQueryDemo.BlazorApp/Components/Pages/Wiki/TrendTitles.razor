@@ -35,15 +35,16 @@ else
 }
 
 @code {
-    private List<PageViews> pageViews;
-    private readonly IMemoryCache cache;
+    private List<PageViews>? pageViews;
+    private readonly IMemoryCache? cache;
 
     protected override async Task OnInitializedAsync()
     {
-        if (!IMemoryCache.TryGetValue("PageViews", out pageViews))
+        if (!IMemoryCache.TryGetValue("PageViews", out pageViews) || !IMemoryCache.TryGetValue("Date", out DateTime date) || date < DateTime.UtcNow.Date)
 		{
 			await GetPageViews();
 			IMemoryCache.Set("PageViews", pageViews, TimeSpan.FromHours(24));
+			IMemoryCache.Set("Date", DateTime.UtcNow.Date, TimeSpan.FromHours(24));
 		}
     }
 
