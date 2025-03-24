@@ -1,0 +1,6 @@
+@CsharpNetWebApiBigQueryDemo.API_HostAddress = http://localhost:5124
+
+GET {{CsharpNetWebApiBigQueryDemo.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
